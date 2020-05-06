@@ -22,6 +22,9 @@ namespace keys
             Console.WriteLine($"Private key : {privateKey.GetWif(Network.Main)}");
         }
 
+        // Private key (hex)       : e2324f7b8ff374c35633535c58396cec929c090167d1355a881995ec7594f3df
+        // Private key (Base58)    : 5KXuU79NbGksBYsEJFVhhDkuqxCyHNa1tc5edxgaSxHR5XE3J64
+        // Private key (Comp.)     : L4oQae7xJGYcVZehh8ygcXJpF4fqRGCivmqX88mgdZ1TGc461Udg
         [Test]
         public void CreateManually()
         {
@@ -55,16 +58,18 @@ namespace keys
             byte[] prefixedPrivKey = Concat(privKeyPrefix, privateKey);
             Base58CheckEncoder base58Check = new Base58CheckEncoder();
             string privKeyEncoded = base58Check.EncodeData(prefixedPrivKey);
-            Console.WriteLine($"Private key (Base58)    : {privKeyEncoded}");
-
             Assert.DoesNotThrow(() => { 
                 Key.Parse(privKeyEncoded, Network.Main);
             });
+            Console.WriteLine($"Private key (Base58)    : {privKeyEncoded}");
 
             // Compressed private key
             byte[] privKeySuffix = new byte[] { (1) }; // Suffix for compressed private key, 0x01 in hex
             byte[] suffixedPrivKey = Concat(prefixedPrivKey, privKeySuffix);
             string compressedPrivKeyEncoded = base58Check.EncodeData(suffixedPrivKey);
+            Assert.DoesNotThrow(() => { 
+                Key.Parse(compressedPrivKeyEncoded, Network.Main);
+            });
             Console.WriteLine($"Private key (Comp.)     : {compressedPrivKeyEncoded}");
         }
 

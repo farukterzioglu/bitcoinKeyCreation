@@ -12,8 +12,11 @@ namespace keys
 {
     public class GeneratePublicKey
     {
+        [Test]
         public void CreatePubKEy()
         {
+            Console.WriteLine();
+
             uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"); 
             Random rand = new Random();
 
@@ -27,14 +30,15 @@ namespace keys
 
             // Public key 
             NBitcoin.Secp256k1.ECPrivKey privKey = Context.Instance.CreateECPrivKey(new Scalar(privateKey));
-            var pubKey = privKey.CreatePubKey();
+            ECPubKey pubKey = privKey.CreatePubKey();
 
-            Span<byte> tmp = new byte[65];
-            pubKey.WriteToSpan(true, tmp, out var l);
-            tmp = tmp.Slice(0, l);
-            var pubHex = Encoders.Hex.EncodeData(tmp);
+            var pubKeyBytes = pubKey.ToBytes();
+            Console.WriteLine($"Pub key  : {Encoders.Hex.EncodeData(pubKeyBytes)}");
 
-            Console.WriteLine($"PublicKey: {pubHex} ");
+            var x = pubKey.Q.x.ToBytes();
+            var y = pubKey.Q.y.ToBytes();
+            Console.WriteLine($"Pub key x: {Encoders.Hex.EncodeData(x)}");
+            Console.WriteLine($"Pub key y: {Encoders.Hex.EncodeData(y)}");
         }
     }
 }

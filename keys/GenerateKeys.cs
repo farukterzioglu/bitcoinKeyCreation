@@ -56,13 +56,13 @@ namespace keys
             // Public key hash -> 
             // Check README (Hash160(Public Key))
             var hash1 =  NBitcoin.Crypto.Hashes.SHA256(publicKey.ToBytes());
-            var hash160 = NBitcoin.Crypto.Hashes.RIPEMD160(hash1, hash1.Length); // SHA256(RIPEMD160(PUB_KUY))
-            var generatedPubKeyHash = new KeyId(hash160);
+            var pkh = NBitcoin.Crypto.Hashes.RIPEMD160(hash1, hash1.Length); // SHA256(RIPEMD160(PUB_KUY))
+            var generatedPubKeyHash = new KeyId(pkh);
             Assert.AreEqual(publicKeyHash, generatedPubKeyHash);
 
             // Bitcoin Address > 
             var versionBytes = Network.Main.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, true); // 0x00
-            byte[] PKHWithVersionBytes = Concat(versionBytes, publicKeyHash.ToBytes()); // 0x00 + PKH
+            byte[] PKHWithVersionBytes = Concat(versionBytes, pkh); // 0x00 + PKH
             var address1 = Encoders.Base58Check.EncodeData(PKHWithVersionBytes); 
             Assert.AreEqual(addressLegacy.ToString(), address1); // 1Co3ZZ3U5ELVmZrV3oXk2qbv58AjuwRrnB
 
