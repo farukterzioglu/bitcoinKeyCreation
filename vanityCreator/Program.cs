@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using NBitcoin;
 using NBitcoin.DataEncoders;
 
@@ -8,9 +9,19 @@ namespace vanityCreator
     {
         static void Main(string[] args)
         {
-            string text = "FARUK";
+            string text = "BTC";
+            for(int i = 0; i < args.Length; i++) 
+                if( args[i] == "-text" ) 
+                    text = args[i+1];
+
+            bool caseSensitive = args.Any( x => x == "-casesensitive");
+            if(!caseSensitive) 
+                text = text.ToLower();
+            
             Func<BitcoinAddress, bool> isMatched = (BitcoinAddress bitcoinAddress) => { 
-                var address = bitcoinAddress.ToString();//.ToLower();
+                var address = bitcoinAddress.ToString();
+                if(!caseSensitive) address = address.ToLower();
+
                 return 
                     address.StartsWith($"1{text}") || 
                     address.StartsWith($"bc1q{text}") || 
