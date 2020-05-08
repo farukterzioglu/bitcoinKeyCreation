@@ -1,9 +1,6 @@
 using System;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
+using System.Numerics;
 using NBitcoin;
-using NBitcoin.Crypto;
 using NBitcoin.DataEncoders;
 using NBitcoin.Secp256k1;
 using NUnit.Framework;
@@ -12,8 +9,12 @@ namespace keys
 {
     public class GeneratePublicKey
     {
+        // Pub key x           :   cd6d7a395e79b34efb091e8658d9cf4bc158e0f1f22a5af17dadd63363a253f8
+        // Pub key y           :   																   05da8518812fee082721c4191bb0a055ce268e46592a7ba82e475d2cc53f7eb3
+        // Pub key (uncomp.)   : 04cd6d7a395e79b34efb091e8658d9cf4bc158e0f1f22a5af17dadd63363a253f805da8518812fee082721c4191bb0a055ce268e46592a7ba82e475d2cc53f7eb3
+        // Pub key (comp.)     : 03cd6d7a395e79b34efb091e8658d9cf4bc158e0f1f22a5af17dadd63363a253f8
         [Test]
-        public void CreatePubKEy()
+        public void CreatePubKey()
         {
             Console.WriteLine();
 
@@ -31,14 +32,22 @@ namespace keys
             // Public key 
             NBitcoin.Secp256k1.ECPrivKey privKey = Context.Instance.CreateECPrivKey(new Scalar(privateKey));
             ECPubKey pubKey = privKey.CreatePubKey();
-
             var pubKeyBytes = pubKey.ToBytes();
-            Console.WriteLine($"Pub key  : {Encoders.Hex.EncodeData(pubKeyBytes)}");
+            // Console.WriteLine($"Pub key             : {Encoders.Hex.EncodeData(pubKeyBytes)}");
 
             var x = pubKey.Q.x.ToBytes();
             var y = pubKey.Q.y.ToBytes();
-            Console.WriteLine($"Pub key x: {Encoders.Hex.EncodeData(x)}");
-            Console.WriteLine($"Pub key y: {Encoders.Hex.EncodeData(y)}");
+            Console.WriteLine($"Pub key x           :   {Encoders.Hex.EncodeData(x)}");
+            Console.WriteLine($"Pub key y           :   {string.Empty.PadLeft(16, '\t')}{Encoders.Hex.EncodeData(y)}");
+
+            var pubKeyUncomp = Helper.Concat(new byte[] { (04) }, x, y);
+            Console.WriteLine($"Pub key (uncomp.)   : {Encoders.Hex.EncodeData(pubKeyUncomp)}");
+
+            BigInteger yBig = new BigInteger(y, isUnsigned: true, isBigEndian: true);
+            byte pubKeyPrefix = (byte)(yBig % 2 == 0 ? 02 : 03);
+            var pubKeyComp = Helper.Concat(new byte[] { pubKeyPrefix }, x);
+            Console.WriteLine($"Pub key (comp.)     : {Encoders.Hex.EncodeData(pubKeyComp)}");
+            Assert.AreEqual(pubKeyBytes , pubKeyComp);
         }
     }
 }

@@ -42,7 +42,7 @@ namespace keys
 
             // Base58 encoded priv key
             var privKeyVersionBytes = Network.Main.GetVersionBytes(Base58Type.SECRET_KEY, true); 
-            byte[] privKeyWithVersionBytes = Concat(privKeyVersionBytes, privateKey.ToBytes());
+            byte[] privKeyWithVersionBytes = Helper.Concat(privKeyVersionBytes, privateKey.ToBytes());
             var privKeyBase58 = Encoders.Base58Check.EncodeData(privKeyWithVersionBytes); 
             
             // Encrypted priv key (BIP38)
@@ -62,7 +62,7 @@ namespace keys
 
             // Bitcoin Address > 
             var versionBytes = Network.Main.GetVersionBytes(Base58Type.PUBKEY_ADDRESS, true); // 0x00
-            byte[] PKHWithVersionBytes = Concat(versionBytes, pkh); // 0x00 + PKH
+            byte[] PKHWithVersionBytes = Helper.Concat(versionBytes, pkh); // 0x00 + PKH
             var address1 = Encoders.Base58Check.EncodeData(PKHWithVersionBytes); 
             Assert.AreEqual(addressLegacy.ToString(), address1); // 1Co3ZZ3U5ELVmZrV3oXk2qbv58AjuwRrnB
 
@@ -78,7 +78,10 @@ namespace keys
             Console.WriteLine($"Add : {addressSegwitP2SH} (SegwitP2SH)");   // 3JCvRhjrEyw9pvZiE3TxsdSHNPJQh1vHTe
             Console.WriteLine($"Add : {addressSegwit} (Segwit)");           // bc1qs90206ph9t3pt3qdc0g85qj2m37a47zclpwws7
         }
+    }
 
+    public static class Helper
+    {
         // From NBitcoin
         public static byte[] Concat(byte[] arr, params byte[][] arrs)
 		{

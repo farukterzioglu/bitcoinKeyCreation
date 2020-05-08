@@ -55,7 +55,7 @@ namespace keys
 
             // Base58  
             byte[] privKeyPrefix = new byte[] { (128) }; // Base58 prefix for private key, 0x80 in hex
-            byte[] prefixedPrivKey = Concat(privKeyPrefix, privateKey);
+            byte[] prefixedPrivKey = Helper.Concat(privKeyPrefix, privateKey);
             Base58CheckEncoder base58Check = new Base58CheckEncoder();
             string privKeyEncoded = base58Check.EncodeData(prefixedPrivKey);
             Assert.DoesNotThrow(() => { 
@@ -65,7 +65,7 @@ namespace keys
 
             // Compressed private key
             byte[] privKeySuffix = new byte[] { (1) }; // Suffix for compressed private key, 0x01 in hex
-            byte[] suffixedPrivKey = Concat(prefixedPrivKey, privKeySuffix);
+            byte[] suffixedPrivKey = Helper.Concat(prefixedPrivKey, privKeySuffix);
             string compressedPrivKeyEncoded = base58Check.EncodeData(suffixedPrivKey);
             Assert.DoesNotThrow(() => { 
                 Key.Parse(compressedPrivKeyEncoded, Network.Main);
@@ -73,13 +73,14 @@ namespace keys
             Console.WriteLine($"Private key (Comp.)     : {compressedPrivKeyEncoded}");
         }
 
+        // Private key (Base58): 5JE7s6mThX637rmc7GGnqCuPCQ1dFD3fhRbeMiG1zAbzYtgnCb6
         [Test]
         public void CreateFromHash()
         {
             using (var sha = new SHA256Managed())
 			{
 				byte[] privateKey = sha.ComputeHash(Encoding.UTF8.GetBytes("some_random_text"));
-                byte[] prefixedPrivKey = Concat(new byte[] { (128) }, privateKey);
+                byte[] prefixedPrivKey = Helper.Concat(new byte[] { (128) }, privateKey);
                 
                 Base58CheckEncoder base58Check = new Base58CheckEncoder();
                 string privKeyEncoded = base58Check.EncodeData(prefixedPrivKey);
@@ -108,19 +109,5 @@ namespace keys
         // byte[] hashMAC = hmac.ComputeHash(seed).Take(32).ToArray();
         // NBitcoin.Secp256k1.ECPrivKey privKey = Context.Instance.CreateECPrivKey(new Scalar(hashMAC));
         // string privHex = Encoders.Hex.EncodeData(hashMAC);
-
-        byte[] Concat(byte[] arr, params byte[][] arrs)
-		{
-			var len = arr.Length + arrs.Sum(a => a.Length);
-			var ret = new byte[len];
-			Buffer.BlockCopy(arr, 0, ret, 0, arr.Length);
-			var pos = arr.Length;
-			foreach (var a in arrs)
-			{
-				Buffer.BlockCopy(a, 0, ret, pos, a.Length);
-				pos += a.Length;
-			}
-			return ret;
-		}
     }
 }
