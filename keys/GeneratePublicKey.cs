@@ -30,9 +30,11 @@ namespace keys
             } while (!(candidateKey > 0 && candidateKey < N));
 
             // Public key 
+            privateKey = Encoders.Hex.DecodeData("da7639a9e2ed4e918b57151509ee34b3f80ad4ab60fb52de59cc3a7386b19007");
+
             NBitcoin.Secp256k1.ECPrivKey privKey = Context.Instance.CreateECPrivKey(new Scalar(privateKey));
             ECPubKey pubKey = privKey.CreatePubKey();
-            var pubKeyBytes = pubKey.ToBytes();
+            byte[] pubKeyBytes = pubKey.ToBytes();
             // Console.WriteLine($"Pub key             : {Encoders.Hex.EncodeData(pubKeyBytes)}");
 
             var x = pubKey.Q.x.ToBytes();

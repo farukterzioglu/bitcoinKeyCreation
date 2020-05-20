@@ -22,22 +22,19 @@ namespace keys
             Console.WriteLine($"Private key : {privateKey.GetWif(Network.Main)}");
         }
 
-        // Private key (hex)       : e2324f7b8ff374c35633535c58396cec929c090167d1355a881995ec7594f3df
-        // Private key (Base58)    : 5KXuU79NbGksBYsEJFVhhDkuqxCyHNa1tc5edxgaSxHR5XE3J64
-        // Private key (Comp.)     : L4oQae7xJGYcVZehh8ygcXJpF4fqRGCivmqX88mgdZ1TGc461Udg
+        // Private key (hex)       : da7639a9e2ed4e918b57151509ee34b3f80ad4ab60fb52de59cc3a7386b19007
+        // Private key (Base58)    : 5KUVttUHHrYU9WBUU1o8FLDNXT947cRxDjxGoTsEpX8JTxTqRxs
+        // Private key (Comp.)     : L4YNY2BQuPftpXoEEEWazFoc1QNYkBP8jEaxk5ajzjyE5r2wCQL5
         [Test]
         public void CreateManually()
         {
+            Console.WriteLine();
             // Priv key length
             int KEY_SIZE = 32;
 
             // Max priv key value
             // 115792089237316195423570985008687907852837564279074904382605163141518161494337
 		    uint256 N = uint256.Parse("fffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141"); 
-            
-            // Add some enyropy
-            RandomUtils.AddEntropy("key-creation-test");
-            RandomUtils.AddEntropy(new byte[] { 99, 98, 97 });
             
             // Randomizer
             Random rand = new Random();
@@ -49,19 +46,36 @@ namespace keys
             {
                 rand.NextBytes(privateKey);    
                 candidateKey = new uint256(privateKey, false);
-                Console.WriteLine($"\nCandidate key: {candidateKey}");
             } while (!(candidateKey > 0 && candidateKey < N));
             Console.WriteLine($"Private key (hex)       : { Encoders.Hex.EncodeData(privateKey) }");
 
             // Base58  
             byte[] privKeyPrefix = new byte[] { (128) }; // Base58 prefix for private key, 0x80 in hex
             byte[] prefixedPrivKey = Helper.Concat(privKeyPrefix, privateKey);
+            
             Base58CheckEncoder base58Check = new Base58CheckEncoder();
-            string privKeyEncoded = base58Check.EncodeData(prefixedPrivKey);
+            
+            string privKeyEncoded = string.Empty;
+            {
+                privKeyEncoded = base58Check.EncodeData(prefixedPrivKey);
+            }
+            // or
+            {
+                var hash1 = NBitcoin.Crypto.Hashes.SHA256(prefixedPrivKey);
+                var hash2 = NBitcoin.Crypto.Hashes.SHA256(hash1);
+                var checksum = hash2.Take(4).ToArray();
+                var prefixedPrivKeyChecksum = Helper.Concat(prefixedPrivKey, checksum);
+
+                Base58Encoder base58 = new Base58Encoder();
+                privKeyEncoded = base58.EncodeData(prefixedPrivKeyChecksum);
+            }
+
             Assert.DoesNotThrow(() => { 
                 Key.Parse(privKeyEncoded, Network.Main);
             });
             Console.WriteLine($"Private key (Base58)    : {privKeyEncoded}");
+
+            
 
             // Compressed private key
             byte[] privKeySuffix = new byte[] { (1) }; // Suffix for compressed private key, 0x01 in hex
