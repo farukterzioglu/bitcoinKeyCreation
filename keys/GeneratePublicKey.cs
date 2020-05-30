@@ -46,8 +46,10 @@ namespace keys
             Console.WriteLine($"Pub key (uncomp.)   : {Encoders.Hex.EncodeData(pubKeyUncomp)}");
 
             BigInteger yBig = new BigInteger(y, isUnsigned: true, isBigEndian: true);
+            
             byte pubKeyPrefix = (byte)(yBig % 2 == 0 ? 02 : 03);
             var pubKeyComp = Helper.Concat(new byte[] { pubKeyPrefix }, x);
+
             Console.WriteLine($"Pub key (comp.)     : {Encoders.Hex.EncodeData(pubKeyComp)}");
             Assert.AreEqual(pubKeyBytes , pubKeyComp);
         }

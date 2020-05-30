@@ -75,8 +75,6 @@ namespace keys
             });
             Console.WriteLine($"Private key (Base58)    : {privKeyEncoded}");
 
-            
-
             // Compressed private key
             byte[] privKeySuffix = new byte[] { (1) }; // Suffix for compressed private key, 0x01 in hex
             byte[] suffixedPrivKey = Helper.Concat(prefixedPrivKey, privKeySuffix);
@@ -85,6 +83,12 @@ namespace keys
                 Key.Parse(compressedPrivKeyEncoded, Network.Main);
             });
             Console.WriteLine($"Private key (Comp.)     : {compressedPrivKeyEncoded}");
+
+            // P2PK private key
+            byte[] p2pkhPrivKeySuffix = new byte[] { (16) }; // 0x10 in hex
+            byte[] suffixedP2pkhPrivKey = Helper.Concat(prefixedPrivKey, p2pkhPrivKeySuffix);
+            string compressedP2pkhPrivKeyEncoded = base58Check.EncodeData(suffixedP2pkhPrivKey);
+            Console.WriteLine($"Private key (P2PKH)     : {compressedP2pkhPrivKeyEncoded}");
         }
 
         // Private key (Base58): 5JE7s6mThX637rmc7GGnqCuPCQ1dFD3fhRbeMiG1zAbzYtgnCb6
